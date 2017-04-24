@@ -23,7 +23,7 @@ class NaivePolicyConditionField(serializers.RelatedField):
 
     http://docs.aws.amazon.com/AmazonS3/latest/dev/HTTPPOSTForms.html#HTTPPOSTConstructPolicy
     '''
-    def to_native(self, value):
+    def to_representation(self, value):
         if value.value_range is not None:
             if value.value is not None:
                 raise ValidationError(
@@ -44,7 +44,7 @@ class NaivePolicyConditionField(serializers.RelatedField):
         else:
             return {value.element_name: value.value}
 
-    def from_native(self, data):
+    def to_internal_value(self, data):
         if isinstance(data, list):
             return self._from_native_list(data)
         elif isinstance(data, dict):
@@ -185,7 +185,11 @@ class NaivePolicySerializer(serializers.Serializer):
         queryset=EmptyQuerySet
     )
 
-    def restore_object(self, attrs, instance=None):
+    def update(self, instance, attrs):
+        from drf_to_s3.models import Policy
+        return Policy(**attrs)
+
+    def create(self, attrs):
         from drf_to_s3.models import Policy
         return Policy(**attrs)
 

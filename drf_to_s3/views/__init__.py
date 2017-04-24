@@ -99,22 +99,22 @@ class BaseUploadCompletionView(APIView):
         from rest_framework.response import Response
         from rest_framework.exceptions import PermissionDenied
 
-        serializer = self.serializer_class(data=request.DATA)
+        serializer = self.serializer_class(data=request.data)
         if not serializer.is_valid():
             return self.handle_validation_error(serializer)
         # Allow extending the serializer to return a list of
         # objects. Return attrs as the first object and this
         # will continue to work.
-        if isinstance(serializer.object, list):
-            attrs = serializer.object[0]
+        if isinstance(serializer.validated_data, list):
+            attrs = serializer.validated_data[0]
         else:
-            attrs = serializer.object
+            attrs = serializer.validated_data
         
         bucket = attrs['bucket']
         key = attrs['key']
         filename = attrs['name']
-        
+
         self.check_upload_permissions(request, bucket, key)
 
-        return self.handle_upload(request, serializer, serializer.object,
+        return self.handle_upload(request, serializer, serializer.validated_data,
                                   bucket, key, filename)

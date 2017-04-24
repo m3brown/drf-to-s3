@@ -101,10 +101,11 @@ class FineSignPolicyView(FineUploaderErrorResponseMixin, APIView):
         from rest_framework.response import Response
         from drf_to_s3 import s3
 
-        request_serializer = self.serializer_class(data=request.DATA)
+        request_serializer = self.serializer_class(data=request.data)
         if not request_serializer.is_valid():
             return self.handle_validation_error(request_serializer)
-        upload_policy = request_serializer.object
+
+        upload_policy = request_serializer.create(request_serializer.validated_data)
 
         self.check_policy_permissions(request, upload_policy)
         
@@ -165,4 +166,4 @@ class FineUploadCompletionView(FineUploaderErrorResponseMixin, BaseUploadComplet
     serializer_class = FineUploadCompletionSerializer
 
     compatibility_for_iframe = True
-    
+
